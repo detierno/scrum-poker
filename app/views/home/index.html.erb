@@ -1,0 +1,30 @@
+<div class="home">
+  <header class="home__header">
+    <h1>Planning Poker</h1>
+    <p class="home__subtitle">Estimate tasks together with your team</p>
+  </header>
+
+  <div class="home__actions">
+    <%= form_with url: rooms_path, method: :post, data: { turbo: false }, class: "card" do |f| %>
+      <h2>Create a room</h2>
+      <p>Start a new session and share the link with your team.</p>
+      <div class="form-group">
+        <%= f.label :name, "Your name" %>
+        <%= f.text_field :name, placeholder: "e.g. Alex", required: true, autofocus: true %>
+      </div>
+      <%= f.submit "Create room", class: "btn btn--primary" %>
+    <% end %>
+
+    <div class="card">
+      <h2>Join a room</h2>
+      <p>Enter the room code shared by your facilitator.</p>
+      <%= form_with url: join_room_path, method: :get, class: "form-inline" do |f| %>
+        <div class="form-group">
+          <%= f.label :code, "Room code", class: "visually-hidden" %>
+          <%= f.text_field :code, placeholder: "e.g. ABC123", required: true, class: "form-inline__input" %>
+        </div>
+        <%= f.submit "Join", class: "btn" %>
+      <% end %>
+    </div>
+  </div>
+</div>

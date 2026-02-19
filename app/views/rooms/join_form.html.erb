@@ -1,0 +1,15 @@
+<div class="join">
+  <header class="join__header">
+    <h1>Join room</h1>
+    <p>Enter your name to join the planning session.</p>
+  </header>
+
+  <%= form_with url: join_room_with_code_path(@code), method: :post, data: { turbo: false }, class: "card" do |f| %>
+    <%= f.hidden_field :code, value: @code %>
+    <div class="form-group">
+      <%= f.label :name, "Your name" %>
+      <%= f.text_field :name, placeholder: "e.g. Jordan", required: true, autofocus: true %>
+    </div>
+    <%= f.submit "Join room", class: "btn btn--primary" %>
+  <% end %>
+</div>

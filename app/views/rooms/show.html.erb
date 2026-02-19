@@ -1,0 +1,60 @@
+<div class="room" data-controller="room" data-room-room-code-value="<%= @room_code %>" data-room-participant-id-value="<%= @participant_id %>" data-room-is-admin-value="<%= @is_admin %>">
+  <header class="room__header">
+    <div class="room__title">
+      <h1>Planning Poker</h1>
+      <span class="room__code">Room: <%= @room_code %></span>
+    </div>
+    <p class="room__participant">You're playing as <strong><%= @participant_name %></strong></p>
+  </header>
+
+  <div class="room__share">
+    <label>Share this link to invite others:</label>
+    <div class="room__share-input">
+      <input type="text" readonly value="<%= request.base_url %><%= room_path(@room_code) %>" data-room-target="shareInput" data-action="click->room#copyLink">
+      <button type="button" class="btn btn--sm" data-action="click->room#copyLink">Copy</button>
+    </div>
+  </div>
+
+  <div class="room__content" data-room-target="content">
+    <section class="participants" data-room-target="participants">
+      <h2>Participants</h2>
+      <div class="participants__list" data-room-target="participantsList">
+        <%= render "participants", room: @room, participant_id: @participant_id, revealed: @room.revealed %>
+      </div>
+    </section>
+
+    <section class="voting">
+      <h2>Your vote</h2>
+      <div class="voting__options" data-room-target="voteButtons">
+        <% RoomStore::Room::FIBONACCI_POINTS.each do |point| %>
+          <button type="button"
+                  class="voting__card"
+                  data-room-target="voteCard"
+                  data-point="<%= point %>"
+                  data-action="click->room#vote">
+            <%= point %>
+          </button>
+        <% end %>
+      </div>
+    </section>
+
+    <% if @is_admin %>
+      <section class="admin-actions" data-room-target="adminActions">
+        <button type="button"
+                class="btn btn--primary"
+                data-room-target="revealButton"
+                data-action="click->room#reveal"
+                disabled>
+          Reveal votes
+        </button>
+        <button type="button"
+                class="btn btn--secondary"
+                data-room-target="resetButton"
+                data-action="click->room#resetVoting"
+                disabled>
+          New round
+        </button>
+      </section>
+    <% end %>
+  </div>
+</div>

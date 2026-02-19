@@ -1,0 +1,12 @@
+<% room.participants.each do |id, data| %>
+  <div class="participant" data-participant-id="<%= id %>">
+    <span class="participant__name"><%= data[:name] %></span>
+    <span class="participant__vote" data-vote>
+      <% if revealed %>
+        <%= data[:vote] || "—" %>
+      <% else %>
+        <%= data[:vote] ? "✓" : "—" %>
+      <% end %>
+    </span>
+  </div>
+<% end %>
