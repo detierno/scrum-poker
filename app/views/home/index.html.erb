@@ -18,12 +18,12 @@
     <div class="card">
       <h2>Join a room</h2>
       <p>Enter the room code shared by your facilitator.</p>
-      <%= form_with url: join_room_path, method: :get, class: "form-inline" do |f| %>
-        <div class="form-group">
+      <%= form_with url: join_room_path, method: :get, class: "form-inline form-inline--join" do |f| %>
+        <div class="form-inline__field">
           <%= f.label :code, "Room code", class: "visually-hidden" %>
           <%= f.text_field :code, placeholder: "e.g. ABC123", required: true, class: "form-inline__input" %>
         </div>
-        <%= f.submit "Join", class: "btn" %>
+        <%= f.submit "Join", class: "btn form-inline__btn" %>
       <% end %>
     </div>
   </div>

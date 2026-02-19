@@ -21,11 +21,11 @@ Rails.application.configure do
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # When using an IP (no domain), skip SSL. With a domain, use HTTPS.
+  rails_host = ENV["RAILS_HOST"]
+  using_ip = rails_host.present? && rails_host.match?(/\A\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/)
+  config.assume_ssl = !using_ip
+  config.force_ssl = !using_ip
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
@@ -53,8 +53,11 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Set host for URL helpers (share links, redirects). Use http when RAILS_HOST is an IP.
+  default_host = ENV.fetch("RAILS_HOST", "example.com")
+  default_protocol = default_host.match?(/\A\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/) ? "http" : "https"
+  config.action_controller.default_url_options = { host: default_host, protocol: default_protocol }
+  config.action_mailer.default_url_options = { host: default_host, protocol: default_protocol }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
@@ -69,12 +72,7 @@ Rails.application.configure do
   # the I18n.default_locale when a translation cannot be found).
   config.i18n.fallbacks = true
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # Allow host from RAILS_HOST (set by Kamal) for share links and redirects.
+  config.hosts << ENV["RAILS_HOST"] if ENV["RAILS_HOST"].present?
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
