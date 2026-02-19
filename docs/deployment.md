@@ -63,6 +63,15 @@ Edit `config/deploy.yml`:
 
 4. **ssh.user** – `ubuntu` for Ubuntu AMI, or `ec2-user` for Amazon Linux.
 
+5. **ssh.keys** – path to your EC2 key pair `.pem` file so Kamal can SSH into the instance:
+   ```yaml
+   ssh:
+     user: ubuntu
+     keys:
+       - ~/.ssh/your-key.pem
+   ```
+   Use the same key you use for `ssh -i your-key.pem ubuntu@YOUR_EC2_IP`. The path can be `~/.ssh/your-key.pem` or an absolute path (e.g. `/Users/you/keys/ec2.pem`).
+
 Leave **proxy** disabled (no `proxy:` section, or comment it out). The config uses `proxy: false` so the app is served on port 80 directly (no Traefik, no SSL).
 
 ## 4. Set secrets
@@ -124,6 +133,7 @@ bin/kamal remove -y
 
 ## 8. Troubleshooting
 
+- **Authentication failed for user ubuntu@…**: Kamal must use your EC2 private key. In `config/deploy.yml` set `ssh.keys` to the path of your `.pem` file (e.g. `~/.ssh/your-key.pem`). Ensure the key has correct permissions: `chmod 600 your-key.pem`. Test with `ssh -i your-key.pem ubuntu@YOUR_EC2_IP`.
 - **Can’t reach http://IP**: Security group must allow inbound **80**. App listens on port 80 (no proxy).
 - **502 / connection refused**: App may still be starting. Check `bin/kamal app logs`.
 - **Can’t connect to Redis**: Run `bin/kamal accessory boot redis` and keep `REDIS_URL: redis://poker-redis:6379/1` in `config/deploy.yml`.

@@ -18,6 +18,9 @@ servers:
 
 ssh:
   user: ubuntu
+  # Path to your EC2 key pair .pem (required for AWS). Use a path that works from your machine.
+  keys:
+    - ~/.ssh/scrum-key.pem
 
 # No proxy when using IP-only (proxy: false above). Omit or leave empty.
 # proxy:

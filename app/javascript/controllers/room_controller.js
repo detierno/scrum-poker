@@ -8,7 +8,7 @@ export default class extends Controller {
     isAdmin: Boolean
   }
 
-  static targets = ["participantsList", "voteButtons", "voteCard", "revealButton", "resetButton", "shareInput", "content"]
+  static targets = ["participantsList", "voteButtons", "voteCard", "revealButton", "resetButton", "shareInput", "copyButton", "content"]
 
   connect() {
     const consumer = window.pokerCable ??= createConsumer()
@@ -43,18 +43,36 @@ export default class extends Controller {
     this.subscription.perform("reset_voting")
   }
 
-  copyLink() {
+  copyLink(event) {
     const input = this.shareInputTarget
+    const text = input.value
     input.select()
     input.setSelectionRange(0, 99999)
-    navigator.clipboard?.writeText(input.value).then(() => {
-      const btn = this.element.querySelector('[data-action="click->room#copyLink"]')
-      if (btn?.tagName === "BUTTON") {
+
+    const showCopied = () => {
+      if (this.hasCopyButtonTarget) {
+        const btn = this.copyButtonTarget
         const original = btn.textContent
         btn.textContent = "Copied!"
         setTimeout(() => { btn.textContent = original }, 2000)
       }
-    })
+    }
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(() => this.fallbackCopy(input, showCopied))
+    } else {
+      this.fallbackCopy(input, showCopied)
+    }
+  }
+
+  fallbackCopy(input, onSuccess) {
+    try {
+      const copied = document.execCommand("copy")
+      if (copied) onSuccess()
+    } catch (_e) {
+      // Selection is already in place; user can Cmd+C / Ctrl+C
+      onSuccess()
+    }
   }
 
   handleBroadcast(data) {
