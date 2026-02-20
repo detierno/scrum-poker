@@ -185,4 +185,27 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".room__code", text: /#{room_code}/
   end
+
+  test "room show page share input contains join URL with code" do
+    post rooms_path, params: { name: "Alice" }
+    follow_redirect!
+    room_code = session[:room_code]
+
+    get room_path(room_code)
+
+    assert_response :success
+    assert_select "input[data-room-target=shareInput][readonly]"
+    assert_match %r{/rooms/join\?code=#{room_code}}, response.body, "Share link should be join URL with room code"
+  end
+
+  test "POST join accepts lowercase room code" do
+    create_result = RoomStore.instance.create_room(admin_name: "Admin")
+    room_code = create_result[:room].code
+    lowercase_code = room_code.downcase
+
+    post join_room_with_code_path(lowercase_code), params: { code: lowercase_code, name: "Bob" }
+
+    assert_redirected_to room_path(room_code)
+    assert_equal "Bob", session[:participant_name]
+  end
 end

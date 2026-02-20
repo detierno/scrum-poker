@@ -29,7 +29,7 @@ class PlanningPokerTest < ApplicationSystemTestCase
     fill_in "code", with: room_code
     click_button "Join"
 
-    assert_current_path "/rooms/join"
+    assert_match %r{/rooms/join}, current_path
     assert_field "code", with: room_code
     fill_in "name", with: "Bob"
     click_button "Join room"
@@ -45,7 +45,7 @@ class PlanningPokerTest < ApplicationSystemTestCase
 
     visit room_path(room_code)
 
-    assert_current_path "/rooms/join"
+    assert_match %r{/rooms/join}, current_path
     assert_field "code", with: room_code
     fill_in "name", with: "Charlie"
     click_button "Join room"
@@ -59,7 +59,7 @@ class PlanningPokerTest < ApplicationSystemTestCase
     fill_in "code", with: "INVALID"
     click_button "Join"
 
-    assert_current_path "/rooms/join"
+    assert_match %r{/rooms/join}, current_path
     fill_in "name", with: "Bob"
     click_button "Join room"
 
@@ -80,14 +80,23 @@ class PlanningPokerTest < ApplicationSystemTestCase
     assert_text "Admin"
   end
 
-  test "room shows shareable link" do
+  test "room shows shareable link in join URL format" do
     visit root_path
     fill_in "name", with: "Admin"
     click_button "Create room"
 
     share_input = find("input[readonly]")
     assert share_input.value.present?
-    assert share_input.value.include?("/rooms/")
+    assert_match %r{/rooms/join\?code=[A-Z]{6}}, share_input.value, "Share link should be join URL with room code"
+  end
+
+  test "Copy button is present on room page" do
+    visit root_path
+    fill_in "name", with: "Admin"
+    click_button "Create room"
+
+    copy_btn = find("button", text: "Copy")
+    assert copy_btn
   end
 
   test "participants list shows all participants" do

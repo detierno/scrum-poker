@@ -134,6 +134,37 @@ bin/kamal remove -y
 ## 8. Troubleshooting
 
 - **Authentication failed for user ubuntu@…**: Kamal must use your EC2 private key. In `config/deploy.yml` set `ssh.keys` to the path of your `.pem` file (e.g. `~/.ssh/your-key.pem`). Ensure the key has correct permissions: `chmod 600 your-key.pem`. Test with `ssh -i your-key.pem ubuntu@YOUR_EC2_IP`.
+
+- **Bind for 0.0.0.0:80 failed: port is already allocated**: Port 80 is in use.
+
+  **Quick fix (from your machine):** Remove existing app containers and proxy, then redeploy:
+  ```bash
+  bin/kamal remove -y
+  bin/kamal accessory boot redis    # if Redis was removed
+  bin/kamal deploy
+  ```
+
+  **If that doesn’t help**, free port 80 on the server:
+
+  1. SSH in: `ssh -i your-key.pem ubuntu@YOUR_EC2_IP`
+  2. See what is using port 80:
+     ```bash
+     sudo ss -tlnp | grep :80
+     # or
+     sudo lsof -i :80
+     ```
+  3. If it’s an old Docker container:
+     ```bash
+     sudo docker ps -a
+     sudo docker stop $(sudo docker ps -aq --filter "name=poker")   # stop poker containers
+     sudo docker rm $(sudo docker ps -aq --filter "name=poker")     # remove them
+     ```
+     Or remove all stopped containers: `sudo docker container prune -f`
+  4. If it’s Kamal proxy (Traefik): from your **local** machine run `bin/kamal proxy remove`, then redeploy.
+  5. If it’s nginx/apache: `sudo systemctl stop nginx` or `sudo systemctl stop apache2` (or disable if you don’t need it).
+
+  Then run `bin/kamal deploy` again.
+
 - **Can’t reach http://IP**: Security group must allow inbound **80**. App listens on port 80 (no proxy).
 - **502 / connection refused**: App may still be starting. Check `bin/kamal app logs`.
 - **Can’t connect to Redis**: Run `bin/kamal accessory boot redis` and keep `REDIS_URL: redis://poker-redis:6379/1` in `config/deploy.yml`.
