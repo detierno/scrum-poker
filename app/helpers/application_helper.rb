@@ -1,9 +1,11 @@
 module ApplicationHelper
-  # Build join-form URL so invitees land directly on "enter your name" with code pre-filled.
-  # Format: http://localhost:3001/rooms/join?code=DAHGEU
+  # Full URL for the join form with room code, so invitees land on "enter your name" with code pre-filled.
+  # Uses the current request's host and port so the share link matches the URL you're actually using.
   def shareable_room_url(room_code)
-    path = join_room_path(code: room_code)
-    base = "#{request.protocol}#{request.host_with_port}"
-    "#{base}#{path}"
+    if request.present?
+      "#{request.base_url}#{join_room_path(code: room_code)}"
+    else
+      join_room_url(code: room_code)
+    end
   end
 end

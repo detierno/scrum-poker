@@ -5,7 +5,8 @@ export default class extends Controller {
   static values = {
     roomCode: String,
     participantId: String,
-    isAdmin: Boolean
+    isAdmin: Boolean,
+    copyFeedback: { type: String, default: "Copied!" }
   }
 
   static targets = ["participantsList", "voteButtons", "voteCard", "revealButton", "resetButton", "shareInput", "copyButton", "content"]
@@ -53,7 +54,7 @@ export default class extends Controller {
       if (this.hasCopyButtonTarget) {
         const btn = this.copyButtonTarget
         const original = btn.textContent
-        btn.textContent = "Copied!"
+        btn.textContent = this.copyFeedbackValue
         setTimeout(() => { btn.textContent = original }, 2000)
       }
     }

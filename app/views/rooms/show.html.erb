@@ -11,7 +11,7 @@
     <label>Share this link to invite others:</label>
     <div class="room__share-input">
       <input type="text" readonly value="<%= shareable_room_url(@room_code) %>" data-room-target="shareInput" data-action="click->room#copyLink">
-      <button type="button" class="btn btn--sm" data-room-target="copyButton" data-action="click->room#copyLink">Copy</button>
+      <button type="button" class="btn btn--sm" data-room-target="copyButton" data-room-copy-feedback-value="Copied!" data-action="click->room#copyLink">Copy</button>
     </div>
   </div>
 
@@ -26,7 +26,7 @@
     <section class="voting">
       <h2>Your vote</h2>
       <div class="voting__options" data-room-target="voteButtons">
-        <% RoomStore::Room::FIBONACCI_POINTS.each do |point| %>
+        <% @vote_options.each do |point| %>
           <button type="button"
                   class="voting__card"
                   data-room-target="voteCard"

@@ -8,13 +8,12 @@ class RoomChannel < ApplicationCable::Channel
 
     reject unless @room && participant_in_room?
 
-    @stream_id = "room:#{@room_code}"
-    stream_from @stream_id
+    stream_from room_stream_name
     broadcast_room_state
   end
 
   def unsubscribed
-    # Any cleanup needed when channel is unsubscribed
+    # No cleanup; room state is server-side only
   end
 
   def vote(data)
@@ -45,10 +44,14 @@ class RoomChannel < ApplicationCable::Channel
     @room.participants.key?(@participant_id)
   end
 
+  def room_stream_name
+    "room:#{@room_code}"
+  end
+
   def broadcast_room_state
     room = RoomStore.instance.find_room(@room_code)
     return unless room
 
-    ActionCable.server.broadcast(@stream_id, room.as_json.merge(room_code: @room_code))
+    ActionCable.server.broadcast(room_stream_name, room.as_json.merge(room_code: @room_code))
   end
 end
