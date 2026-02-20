@@ -38,7 +38,6 @@ class RoomsController < ApplicationController
     @code = params[:code]
     if @code.blank?
       redirect_to root_path, alert: "Please enter a room code."
-      return
     end
   end
 
